@@ -1,0 +1,16 @@
+providers = ["node"]
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+# Only install backend dependencies
+cmds = ["cd backend && npm install"]
+
+[phases.build]
+# No build step needed for plain Express app
+cmds = []
+
+[start]
+# Start the backend server
+cmd = "cd backend && npm start"
