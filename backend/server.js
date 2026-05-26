@@ -24,14 +24,10 @@ app.use((req, _res, next) => {
 const io = new Server(httpServer, {
   cors: {
     origin: (origin, callback) => {
-      if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) {
-        callback(null, true);
-      } else {
-        logger.warn('Socket CORS blocked', { origin });
-        callback(new Error('Not allowed by CORS'));
-      }
+      // Allow all origins
+      callback(null, true);
     },
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true,
   },
 });
@@ -60,12 +56,8 @@ io.on('connection', (socket) => {
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) {
-        callback(null, true);
-      } else {
-        logger.warn('HTTP CORS blocked', { origin });
-        callback(new Error('Not allowed by CORS'));
-      }
+      // Allow all origins
+      callback(null, true);
     },
     credentials: true,
   })
