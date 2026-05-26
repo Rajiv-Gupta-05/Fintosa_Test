@@ -1,0 +1,44 @@
+<div
+  class="kanban-col"
+  [class.drag-over]="isDragOver"
+  (dragover)="onDragOver($event)"
+  (dragleave)="dragLeave.emit()"
+  (drop)="onDrop($event)"
+>
+  <!-- Column header -->
+  <div class="col-header">
+    <div class="col-title">
+      <span class="col-icon">{{ icon }}</span>
+      <span class="col-label" [style.color]="color">{{ label }}</span>
+      <span class="col-badge" [style.background]="color + '22'" [style.color]="color">
+        {{ totalCount }}
+      </span>
+    </div>
+    <div class="col-indicator" [style.background]="color"></div>
+  </div>
+
+  <!-- Drop zone hint when dragging over -->
+  <div class="drop-hint" *ngIf="isDragOver">
+    <span>Drop here to move</span>
+  </div>
+
+  <!-- Task cards -->
+  <div class="col-tasks">
+    <app-task-card
+      *ngFor="let task of tasks; trackBy: trackByTaskId"
+      [task]="task"
+      [columnStatus]="status"
+      (edit)="editTask.emit(task)"
+      (delete)="deleteTask.emit(task)"
+      (statusChange)="statusChange.emit($event)"
+      (dragStarted)="dragStart.emit(task)"
+      (dragEnded)="dragEnd.emit()"
+    ></app-task-card>
+
+    <div class="empty-col" *ngIf="tasks.length === 0 && !isDragOver">
+      <div class="empty-icon">{{ icon }}</div>
+      <p>No tasks here</p>
+      <span>Drag tasks here or create one</span>
+    </div>
+  </div>
+</div>

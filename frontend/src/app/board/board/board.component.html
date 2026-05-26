@@ -1,0 +1,106 @@
+<app-navbar></app-navbar>
+
+<div class="board-container">
+  <!-- Header bar -->
+  <div class="board-header">
+    <div class="board-title-wrap">
+      <h1 class="board-title">
+        <span class="board-icon">🗂️</span>
+        Sprint Board
+      </h1>
+      <div class="online-badge">
+        <span class="dot-live"></span>
+        Live
+      </div>
+    </div>
+
+    <div class="board-controls">
+      <!-- Search -->
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          placeholder="Search tasks..."
+          id="search-input"
+        />
+      </div>
+
+      <!-- Priority filter -->
+      <select [(ngModel)]="filterPriority" class="filter-select" id="filter-priority">
+        <option value="">All Priorities</option>
+        <option value="HIGH">🔴 High</option>
+        <option value="MEDIUM">🟡 Medium</option>
+        <option value="LOW">🟢 Low</option>
+      </select>
+
+      <!-- Assignee filter -->
+      <select [(ngModel)]="filterAssignee" class="filter-select" id="filter-assignee">
+        <option value="">All Members</option>
+        <option *ngFor="let user of users" [value]="user._id">{{ user.name }}</option>
+      </select>
+
+      <!-- Clear filters -->
+      <button *ngIf="hasActiveFilters" class="btn-ghost btn-sm" (click)="clearFilters()" id="clear-filters">
+        ✕ Clear
+      </button>
+
+      <!-- Create task button -->
+      <button class="btn-create" (click)="openCreateModal()" id="create-task-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Task
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="skeleton-columns">
+      <div class="skeleton-col" *ngFor="let col of columns">
+        <div class="skeleton-header"></div>
+        <div class="skeleton-card" *ngFor="let i of [1,2,3]"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kanban columns -->
+  <div class="kanban-board" *ngIf="!isLoading">
+    <app-kanban-column
+      *ngFor="let col of columns"
+      [status]="col.status"
+      [label]="col.label"
+      [color]="col.color"
+      [icon]="col.icon"
+      [tasks]="getColumnTasks(col.status)"
+      [totalCount]="getColumnCount(col.status)"
+      [isDragOver]="dragOverColumn === col.status"
+      (editTask)="openEditModal($event)"
+      (deleteTask)="onDeleteTask($event)"
+      (statusChange)="onStatusChange($event)"
+      (dragStart)="onDragStart($event)"
+      (dragEnd)="onDragEnd()"
+      (dragOver)="onDragOver($event, col.status)"
+      (dragLeave)="onDragLeave()"
+      (drop)="onDrop($event, col.status)"
+    ></app-kanban-column>
+  </div>
+</div>
+
+<!-- Task Modal -->
+<app-task-modal
+  *ngIf="showModal"
+  [task]="editingTask"
+  [users]="users"
+  (save)="onTaskSaved($event)"
+  (close)="closeModal()"
+></app-task-modal>
+
+<!-- Toast notification -->
+<div class="toast-container" [class.visible]="toastMessage" [ngClass]="'toast-' + toastType">
+  <span class="toast-icon">
+    <span *ngIf="toastType === 'success'">✅</span>
+    <span *ngIf="toastType === 'info'">🔔</span>
+    <span *ngIf="toastType === 'error'">❌</span>
+  </span>
+  {{ toastMessage }}
+</div>
